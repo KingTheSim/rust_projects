@@ -1,17 +1,7 @@
 use std::fmt::Result;
 use std::io::Result as IoResult;
 
-fn function1() -> Result {}
-fn function2() -> IoResult<()> {
-
-}
-
-mod front_of_house {
-    pub mod hosting {
-        pub fn add_to_waitlist() {}
-    }
-}
-
+mod front_of_house;
 
 fn deliver_order() {}
 
