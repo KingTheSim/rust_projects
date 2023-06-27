@@ -1,5 +1,6 @@
 use std::{cmp::Ordering, io};
 use rand::Rng;
+
 pub struct Guess {
     value: i32,
 }
