@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="45de766f-622d-4d8a-a3bb-56206c8ea5e7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/errors_panics.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/hello.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/errors_panics/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/removing_duplicates.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/removing_duplicates/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rust_exercism/struct_generics/struct_generics.iml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="s2lv9i8q" />
+  </component>
+  <component name="ProjectId" id="2S0hCeNYsBhk0qJkIQ97UsYmtHE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="run --package generics_traits_lifetimes --bin generics_traits_lifetimes" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="emulateTerminal" value="false" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="run" />
+      <option name="emulateTerminal" value="false" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="45de766f-622d-4d8a-a3bb-56206c8ea5e7" name="Changes" comment="" />
+      <created>1688289280724</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1688289280724</updated>
+    </task>
+    <servers />
+  </component>
+</project>
