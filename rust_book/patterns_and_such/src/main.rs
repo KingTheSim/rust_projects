@@ -38,7 +38,17 @@ fn main() {
 
     if let x = 5 {
         println!("{x}");
-    }
+    };
+
+    let x = 5;
+
+    let x = 'c';
+
+    match x {
+        'a'..='j' => println!("early ASCII letter"),
+        'k'..='z' => println!("late ASCII letter"),
+        _ => println!("something else"),
+    };
 }
 
 fn print_coordinates(&(x, y): &(i32, i32)) {
