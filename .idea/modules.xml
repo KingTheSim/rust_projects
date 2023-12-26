@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/reverse_words.iml" filepath="$PROJECT_DIR$/reverse_words.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/rust_projects.iml" filepath="$PROJECT_DIR$/.idea/rust_projects.iml" />
     </modules>
   </component>
 </project>
