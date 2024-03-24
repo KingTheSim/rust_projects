@@ -1,105 +1,102 @@
-use leptos::*;
+use leptos::{ev::MouseEvent, *};
+
+// This highlights four different ways that child components can communicate
+// with their parent:
+// 1) <ButtonA/>: passing a WriteSignal as one of the child component props,
+//    for the child component to write into and the parent to read
+// 2) <ButtonB/>: passing a closure as one of the child component props, for
+//    the child component to call
+// 3) <ButtonC/>: adding an `on:` event listener to a component
+// 4) <ButtonD/>: providing a context that is used in the component (rather than prop drilling)
+
+#[derive(Copy, Clone)]
+struct SmallcapsContext(WriteSignal<bool>);
 
 #[component]
 pub fn App() -> impl IntoView {
-    let (value, set_value) = create_signal(0);
-    let is_odd = move || value() & 1 == 1;
-    let odd_text = move || if is_odd() { Some("How odd!") } else { None };
+    // just some signals to toggle three classes on our <p>
+    let (red, set_red) = create_signal(false);
+    let (right, set_right) = create_signal(false);
+    let (italics, set_italics) = create_signal(false);
+    let (smallcaps, set_smallcaps) = create_signal(false);
+
+    // the newtype pattern isn't *necessary* here but is a good practice
+    // it avoids confusion with other possible future `WriteSignal<bool>` contexts
+    // and makes it easier to refer to it in ButtonC
+    provide_context(SmallcapsContext(set_smallcaps));
 
     view! {
-        <NumericInput/>
-        <h1>"Control Flow"</h1>
+        <main>
+            <p class:red=red class:right=right class:italics=italics class:smallcaps=smallcaps>
+                "Lorem ipsum sit dolor amet."
+            </p>
 
-        // Simple UI to update and show a value
-        <button on:click=move |_| set_value.update(|n| *n += 1)>"+1"</button>
+            // Button A: pass the signal setter
+            <ButtonA setter=set_red/>
 
-        <p>"Value is: " {value}</p>
+            // Button B: pass a closure
+            <ButtonB on_click=move |_| set_right.update(|value| *value = !*value)/>
 
-        <hr/>
+            // Button C: use a regular event listener
+            // setting an event listener on a component like this applies it
+            // to each of the top-level elements the component returns
+            <ButtonC on:click=move |_| set_italics.update(|value| *value = !*value)/>
 
-        <h2>
-            <code>"Option<T>"</code>
-        </h2>
-        // For any `T` that implements `IntoView`,
-        // so does `Option<T>`
-
-        <p>{odd_text}</p>
-        // This means you can use `Option` methods on it
-        <p>{move || odd_text().map(|text| text.len())}</p>
-
-        <h2>"Conditional Logic"</h2>
-        // You can do dynamic conditional if-then-else
-        // logic in several ways
-        // 
-        // a. An "if" expression in a function
-        // This will simply re-render every time the value
-        // changes, which makes it good for lightweight UI
-        <p>{move || if is_odd() { "Odd" } else { "Even" }}
-        </p>
-
-        // b. Toggling some kind of class
-        // This is smart for an element that's going to
-        // toggled often, because it doesn't destroy
-        // it in between states
-        // (you can find the `hidden` class in `index.html`)
-        <p class:red=is_odd>"Appears if odd."</p>
-
-        // c. The <Show/> component
-        // This only renders the fallback and the child
-        // once, lazily, and toggles between them when
-        // needed. This makes it more efficient in many cases
-        // than a {move || if ...} block
-        <Show when=is_odd fallback=|| view! { <p>"Even Steven."</p> }>
-            <p>"Oddment"</p>
-        </Show>
-
-        // d. Because `bool::then()` converts a `bool` to
-        // `Option`, you can use it to create a show/hide toggled
-        {move || is_odd().then(|| view! { <p>"Oddity!"</p> })}
-
-        <h2>"Convert between Types"</h2>
-        // e. Note: if branches return different types,
-        // you can convert between them with
-        // `.into_any()` (for different HTML element types)
-        // or `.into_view()` (for all view types)
-        {move || match is_odd() {
-            true if value() == 1 => view! { <pre>"One"</pre> }.into_any(),
-            false if value() == 2 => view! { <p>"Two"</p> }.into_any(),
-            _ => view! { <textarea>{value()}</textarea> }.into_any(),
-        }}
+            // Button D gets its setter from context rather than props
+            <ButtonD/>
+        </main>
     }
 }
 
+/// Button A receives a signal setter and updates the signal itself
 #[component]
-fn NumericInput() -> impl IntoView {
-    let (value, set_value) = create_signal(Ok(0));
+pub fn ButtonA(
+    /// Signal that will be toggled when the button is clicked.
+    setter: WriteSignal<bool>,
+) -> impl IntoView {
+    view! { <button on:click=move |_| setter.update(|value| *value = !*value)>"Toggle Red"</button> }
+}
 
-    let on_input = move |ev| set_value(event_target_value(&ev).parse::<i32>());
+/// Button B receives a closure
+#[component]
+pub fn ButtonB<F>(
+    /// Callback that will be invoked when the button is clicked.
+    on_click: F,
+) -> impl IntoView
+where
+    F: Fn(MouseEvent) + 'static,
+{
+    view! { <button on:click=on_click>"Toggle Right"</button> }
+
+    // just a note: in an ordinary function ButtonB could take on_click: impl Fn(MouseEvent) + 'static
+    // and save you from typing out the generic
+    // the component macro actually expands to define a
+    //
+    // struct ButtonBProps<F> where F: Fn(MouseEvent) + 'static {
+    //   on_click: F
+    // }
+    //
+    // this is what allows us to have named props in our component invocation,
+    // instead of an ordered list of function arguments
+    // if Rust ever had named function arguments we could drop this requirement
+}
+
+/// Button C is a dummy: it renders a button but doesn't handle
+/// its click. Instead, the parent component adds an event listener.
+pub fn ButtonC() -> impl IntoView {
+    view! { <button>"Toggle Italics"</button> }
+}
+
+/// Button D is very similar to Button A, but instead of passing the setter as a prop
+/// we get it from the context
+#[component]
+pub fn ButtonD() -> impl IntoView {
+    let setter = use_context::<SmallcapsContext>().unwrap().0;
 
     view! {
-        <h1>"Error Handling"</h1>
-        <label>
-            "Type a number (or not!)" <input type="number" on:input=on_input/>
-            <ErrorBoundary fallback=|errors| {
-                view! {
-                    <div class="error">
-                        <p>"Not a number! Errors: "</p>
-                        <ul>
-                            {move || {
-                                errors
-                                    .get()
-                                    .into_iter()
-                                    .map(|(_, e)| view! { <li>{e.to_string()}</li> })
-                                    .collect_view()
-                            }}
-                        </ul>
-                    </div>
-                }
-            }>
-
-                <p>"You entered " <strong>{value}</strong></p>
-            </ErrorBoundary> <p>"You entered " <strong>{value}</strong></p>
-        </label>
+        <button on:click=move |_| {
+            setter.update(|value| *value = !*value)
+        }>"Toggle Smallcaps"</button>
     }
 }
 
