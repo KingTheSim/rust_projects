@@ -1,162 +1,73 @@
-use leptos::html::Input;
+use gloo_timers::future::TimeoutFuture;
 use leptos::*;
 
-#[derive(Copy, Clone)]
-struct LogContext(RwSignal<Vec<String>>);
+// Here we define an async function
+// This could be anything: a network request, database read, etc.
+// Here, we just multiply a number by 10
+async fn load_data(value: i32) -> i32 {
+    // fake a one-second delay
+    TimeoutFuture::new(1_000).await;
+    value * 10
+}
 
 #[component]
 pub fn App() -> impl IntoView {
-    let log = create_rw_signal::<Vec<String>>(vec![]);
-    let logged = move || log().join("\n");
+    // this count is our synchronous, local state
+    let (count, set_count) = create_signal(0);
 
-    // the newtype pattern isn't *necessary* here but is a good practice
-    // it avoids confusion with other possible future `RwSignal<Vec<String>>` contexts
-    // and makes it easier to refer to it
-    provide_context(LogContext(log));
+    // create_resource takes two arguments after its scope
+    let async_data = create_resource(
+        // the first is the "source signal"
+        count,
+        // the second is the loader
+        // it takes the source signal's value as its argument
+        // and does some async work
+        |value| async move { load_data(value).await },
+    );
+    // whenever the source signal changes, the loader reloads
 
-    view! {
-        <EffectVsDerivedSignal/>
-        <pre>{logged}</pre>
-    }
-}
+    // you can also create resources that only load once
+    // just return the unit type () from the source signal
+    // that doesn't depend on anything: we just load it once
+    let stable = create_resource(|| (), |_| async move { load_data(1).await });
 
-#[component]
-fn CreateAnEffect() -> impl IntoView {
-    let (first, set_first) = create_signal(String::new());
-    let (last, set_last) = create_signal(String::new());
-    let (use_last, set_use_last) = create_signal(true);
-
-    // this will add the name to the log
-    // any time one of the source signals changes
-    create_effect(move |_| {
-        log(if use_last() {
-            with!(|first, last| format!("{} {}", first, last))
-        } else {
-            first()
-        })
-    });
-
-    view! {
-        <h1>
-            <code>"create_effect"</code>
-            " Version"
-        </h1>
-        <form>
-            <label>
-                "First Name"
-                <input
-                    type="text"
-                    name="first"
-                    prop:value=first
-                    on:change=move |ev| set_first(event_target_value(&ev))
-                />
-            </label>
-            <label>
-                "Last Name"
-                <input
-                    type="text"
-                    name="last"
-                    prop:value=last
-                    on:change=move |ev| set_last(event_target_value(&ev))
-                />
-            </label>
-            <label>
-                "Show Last Name"
-                <input
-                    type="checkbox"
-                    name="use_last"
-                    prop:value=use_last
-                    on:change=move |ev| set_use_last(event_target_checked(&ev))
-                />
-            </label>
-        </form>
-    }
-}
-
-#[component]
-fn ManualVersion() -> impl IntoView {
-    let first = create_node_ref::<Input>();
-    let last = create_node_ref::<Input>();
-    let use_last = create_node_ref::<Input>();
-
-    let mut prev_name = String::new();
-    let on_change = move |_| {
-        log("     listener");
-        let first = first.get().unwrap();
-        let last = last.get().unwrap();
-        let use_last = use_last.get().unwrap();
-        let this_one = if use_last.checked() {
-            format!("{} {}", first.value(), last.value())
-        } else {
-            first.value()
-        };
-
-        if this_one != prev_name {
-            log(&this_one);
-            prev_name = this_one;
-        }
+    // we can access the resource values with .read()
+    // this will reactively return None before the Future has resolved
+    // and update to Some(T) when it has resolved
+    let async_result = move || {
+        async_data
+            .read()
+            .map(|value| format!("Server returned {value:?}"))
+            // This loading state will only show before the first load
+            .unwrap_or_else(|| "Load...".into())
     };
 
+    // the resource's loading() method gives us a
+    // signal to indicate whether it's currently loading
+    let loading = async_data.loading();
+    let is_loading = move || if loading() { "Loading..." } else { "Idle." };
+
     view! {
-        <h1>"Manual Version"</h1>
-        <form on:change=on_change>
-            <label>"First Name" <input type="text" name="first" node_ref=first/></label>
-            <label>"Last Name" <input type="text" name="last" node_ref=last/></label>
-            <label>
-                "Show Last Name" <input type="checkbox" name="use_last" checked node_ref=use_last/>
-            </label>
-        </form>
-    }
-}
-
-#[component]
-fn EffectVsDerivedSignal() -> impl IntoView {
-    let (my_value, set_my_value) = create_signal(String::new());
-
-    let my_optional_value =
-        move || (!my_value.with(String::is_empty)).then(|| Some(my_value.get()));
-    view! {
-        <input prop:value=my_value on:input=move |ev| set_my_value(event_target_value(&ev))/>
-
+        <button
+            on:click=move |_| {
+                set_count.update(|n| *n += 1);
+            }
+        >
+            "Click me"
+        </button>
         <p>
-            <code>"my_optional_value"</code>
-            " is "
-            <code>
-                <Show when=move || my_optional_value().is_some() fallback=|| view! { "None" }>
-                    "Show(\""
-                    {my_optional_value().unwrap()}
-                    "\")"
-                </Show>
-            </code>
+            <code>"stable"</code>": " {move || stable.read()}
+        </p>
+        <p>
+            <code>"count"</code>": " {count}
+        </p>
+        <p>
+            <code>"async_value"</code>": "
+            {async_result}
+            <br/>
+            {is_loading}
         </p>
     }
-}
-
-#[component]
-pub fn Show<F, W, IV>(
-    /// The components Show wraps
-    children: Box<dyn Fn() -> Fragment>,
-    /// A closure that returns a bool that determines whether this thing runs
-    when: W,
-    /// A closure that returns what gets rendered if the when statement is false
-    fallback: F,
-) -> impl IntoView
-where
-    W: Fn() -> bool + 'static,
-    F: Fn() -> IV + 'static,
-    IV: IntoView,
-{
-    let memoized_when = create_memo(move |_| when());
-
-    move || match memoized_when.get() {
-        true => children().into_view(),
-        false => fallback().into_view(),
-    }
-}
-
-fn log(msg: impl std::fmt::Display) {
-    let log = use_context::<LogContext>().unwrap().0;
-    log.update(|log| log.push(msg.to_string()));
 }
 
 fn main() {
