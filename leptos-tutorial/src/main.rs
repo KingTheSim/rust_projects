@@ -1,72 +1,31 @@
 use gloo_timers::future::TimeoutFuture;
 use leptos::*;
 
-// Here we define an async function
-// This could be anything: a network request, database read, etc.
-// Here, we just multiply a number by 10
-async fn load_data(value: i32) -> i32 {
-    // fake a one-second delay
+async fn important_api_call(name: String) -> String {
     TimeoutFuture::new(1_000).await;
-    value * 10
+    name.to_ascii_uppercase()
 }
 
 #[component]
 pub fn App() -> impl IntoView {
-    // this count is our synchronous, local state
-    let (count, set_count) = create_signal(0);
-
-    // create_resource takes two arguments after its scope
-    let async_data = create_resource(
-        // the first is the "source signal"
-        count,
-        // the second is the loader
-        // it takes the source signal's value as its argument
-        // and does some async work
-        |value| async move { load_data(value).await },
-    );
-    // whenever the source signal changes, the loader reloads
-
-    // you can also create resources that only load once
-    // just return the unit type () from the source signal
-    // that doesn't depend on anything: we just load it once
-    let stable = create_resource(|| (), |_| async move { load_data(1).await });
-
-    // we can access the resource values with .read()
-    // this will reactively return None before the Future has resolved
-    // and update to Some(T) when it has resolved
-    let async_result = move || {
-        async_data
-            .read()
-            .map(|value| format!("Server returned {value:?}"))
-            // This loading state will only show before the first load
-            .unwrap_or_else(|| "Load...".into())
-    };
-
-    // the resource's loading() method gives us a
-    // signal to indicate whether it's currently loading
-    let loading = async_data.loading();
-    let is_loading = move || if loading() { "Loading..." } else { "Idle." };
+    let (name, set_name) = create_signal("Bill".to_string());
+    let async_data = create_resource(name, |name| async move { important_api_call(name).await });
 
     view! {
-        <button
-            on:click=move |_| {
-                set_count.update(|n| *n += 1);
+        <input
+            on:input=move |ev| {
+                set_name(event_target_value(&ev));
             }
-        >
-            "Click me"
-        </button>
+
+            prop:value=name
+        />
         <p>
-            <code>"stable"</code>": " {move || stable.read()}
+            <code>"name:"</code>
+            {name}
         </p>
-        <p>
-            <code>"count"</code>": " {count}
-        </p>
-        <p>
-            <code>"async_value"</code>": "
-            {async_result}
-            <br/>
-            {is_loading}
-        </p>
+        <Suspense fallback=move || view! { <p>"Loading..."</p> }>
+            <p>"Your shouting name is " {move || async_data.get()}</p>
+        </Suspense>
     }
 }
 
