@@ -5,46 +5,12 @@ use leptos_router::*;
 pub fn App() -> impl IntoView {
     view! {
         <Router>
-            <h1>"Contact App"</h1>
-            // this <nav> will show on every routes,
-            // because it's outside the <Routes/>
-            // note: we can just use normal <a> tags
-            // and the router will use client-side navigation
-            <nav>
-                <a href="/">"Home"</a>
-                <a href="/contacts">"Contacts"</a>
-            </nav>
+            <h1>
+                <code>"<Form/>"</code>
+            </h1>
             <main>
                 <Routes>
-                    // / just has an un-nested "Home"
-                    <Route path="/" view=|| view! {
-                        <h3>"Home"</h3>
-                    }/>
-                    // /contacts has nested routes
-                    <Route
-                        path="/contacts"
-                        view=ContactList
-                    >
-                        // if no id specified, fall back
-                        <Route path=":id" view=ContactInfo>
-                            <Route path="" view=|| view! {
-                                <div>
-                                    "(Contact Info)"
-                                </div>
-                            }/>
-                            <Route path="conversations" view=|| view! {
-                                <div>
-                                    "(Conversations)"
-                                </div>
-                            }/>
-
-                        </Route>
-                        <Route path="" view=|| view! {
-                            <div>
-                                "Select a user to view contact info."
-                            </div>
-                        }/>
-                    </Route>
+                    <Route path="" view=FormExample/>
                 </Routes>
             </main>
         </Router>
@@ -52,54 +18,74 @@ pub fn App() -> impl IntoView {
 }
 
 #[component]
-fn ContactList() -> impl IntoView {
-    view! {
-        <div>
-            // here's our contact list component itself
-            <h3>"Contacts"</h3>
-            <div>
-                <A href="alice">"Alice"</A>
-                <A href="bob">"Bob"</A>
-                <A href="steve">"Steve"</A>
-            </div>
-
-            // <Outlet/> will show the nested child route
-            // we can position this outlet wherever we want
-            // within the layout
-            <Outlet/>
-        </div>
-    }
-}
-
-#[component]
-fn ContactInfo() -> impl IntoView {
-    // we can access the :id param reactively with `use_params_map`
-    let params = use_params_map();
-    let id = move || params.with(|params| params.get("id").cloned().unwrap_or_default());
-
-    // imagine we're loading data from an API here
-    let name = move || match id().as_str() {
-        "alice" => "Alice",
-        "bob" => "Bob",
-        "steve" => "Steve",
-        _ => "User not found.",
-    };
+pub fn FormExample() -> impl IntoView {
+    let query = use_query_map();
+    let name = move || query().get("name").cloned().unwrap_or_default();
+    let number = move || query().get("number").cloned().unwrap_or_default();
+    let select = move || query().get("select").cloned().unwrap_or_default();
 
     view! {
-        <h4>{name}</h4>
-        <div>
-            <div>
-                <A href="" exact=true>"Contact Info"</A>
-                <A href="conversations">"Conversations"</A>
-            </div>
-
-            // <Outlet/> here is the tabs that are nested
-            // underneath the /contacts/:id route
-            <Outlet/>
-        </div>
+        <table>
+            <tr>
+                <td>
+                    <code>"name"</code>
+                </td>
+                <td>{name}</td>
+            </tr>
+            <tr>
+                <td>
+                    <code>"number"</code>
+                </td>
+                <td>{number}</td>
+            </tr>
+            <tr>
+                <td>
+                    <code>"select"</code>
+                </td>
+                <td>{select}</td>
+            </tr>
+        </table>
+        // <Form/> will navigate whenever submitted
+        <h2>"Manual Submissions"</h2>
+        <Form method="GET" action="">
+            // input names determine query string key
+            <input type="text" name="name" value=name/>
+            <input type="number" name="number" value=number/>
+            <select name="select">
+                // `selected` will set which starts as selected
+                <option selected=move || select() == "A">"A"</option>
+                <option selected=move || select() == "B">"B"</option>
+                <option selected=move || select() == "C">"C"</option>
+            </select>
+            // submitting should cause a client-side
+            // navigation, not a full reload
+            <input type="submit"/>
+        </Form>
+        // This <Form/> uses some JavaScript to submit
+        // on every input
+        <h2>"Automatic Submissions"</h2>
+        <Form method="GET" action="">
+            <input
+                type="text"
+                name="name"
+                value=name
+                // this oninput attribute will cause the
+                // form to submit on every input to the field
+                oninput="this.form.requestSubmit()"
+            />
+            <input type="number" name="number" value=number oninput="this.form.requestSubmit()"/>
+            <select name="select" onchange="this.form.requestSubmit()">
+                <option selected=move || select() == "A">"A"</option>
+                <option selected=move || select() == "B">"B"</option>
+                <option selected=move || select() == "C">"C"</option>
+            </select>
+            // submitting should cause a client-side
+            // navigation, not a full reload
+            <input type="submit"/>
+        </Form>
     }
 }
 
 fn main() {
-    leptos::mount_to_body(|| view! { <App></App> })
+    leptos::mount_to_body(|| view! { <App/> })
 }
