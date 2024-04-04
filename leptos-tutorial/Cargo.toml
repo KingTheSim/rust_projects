@@ -11,3 +11,7 @@ leptos = { version = "0.6.9", features = ["csr", "nightly"] }
 gloo-timers = {version = "0.3.0", features = ["futures"]}
 uuid = {version = "1.8.0", features = ["v4"]}
 leptos_router = { version = "0.6.9", features = ["csr"] }
+
+[dependencies.web-sys]
+version = "0.3"
+features = ["DomRect"]
